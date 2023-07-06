@@ -1,9 +1,20 @@
 package dev.oxoo2a.sim4da;
 
+import java.util.Random;
+
 public abstract class Node implements Simulator2Node {
+
+    private boolean state;
+    private double initialProb = 10; //Wahrscheinlichkeit Verstellmöglichkeit
+    //TODO wie greife ich auf die numberOfNodes zu?
+    //TODO werden die Arrays richtig pro Node initiiert?
+    public static int receiveCount[] = new int[8];//Node.numberOfNodes()];
+    public static int[] sendCount = new int[8];//Node.numberOfNodes()];
+    public static int[] nkvCount= new int[8];//Node.numberOfNodes()];
 
     public Node ( int my_id ) {
         this.myId = my_id;
+        state = true;
         t_main = new Thread(this::main);
     }
 
@@ -29,23 +40,51 @@ public abstract class Node implements Simulator2Node {
     protected boolean stillSimulating () {
         return simulator.stillSimulating();
     }
+
     protected void sendUnicast ( int receiver_id, String m ) {
-        simulator.sendUnicast(myId,receiver_id,m);
+        System.out.println("Drinnen");
+        if (state==true){
+            int prob2 = sendProb();
+            if (initialProb > 0.01 && prob2 == 0){
+                sendCount();
+                nkvSendCount(receiver_id);
+                state = false;
+                simulator.sendUnicast(myId,receiver_id,m);
+            }
+        }
     }
 
     protected void sendUnicast ( int receiver_id, Message m ) {
-        simulator.sendUnicast(myId,receiver_id, m.toJson());
+        if (state==true){
+            int prob2 = sendProb();
+            if (initialProb > 0.01 && prob2 == 0){
+                sendCount();
+                nkvSendCount(receiver_id);
+                state = false;
+                simulator.sendUnicast(myId,receiver_id,m);
+            }
+        }
     }
 
     protected void sendBroadcast ( String m ) {
-        simulator.sendBroadcast(myId,m);
+        //sendCount();
+        //nkvSendCount(0);
+        //this.state = false;
+        //simulator.sendBroadcast(myId,m);
     }
 
     protected void sendBroadcast ( Message m ) {
-        simulator.sendBroadcast(myId,m.toJson());
+        //sendCount();
+        //nkvSendCount(0);
+        //this.state = false;
+        //simulator.sendBroadcast(myId,m);
     }
 
     protected Network.Message receive () {
+        state = true;
+        receiveCount();
+        nkvReceiveCount();
+        newMessage();
         return simulator.receive(myId);
     }
 
@@ -54,6 +93,45 @@ public abstract class Node implements Simulator2Node {
     }
     // Module implements basic node functionality
     protected abstract void main ();
+
+    protected void newMessage(){
+        Random random = new Random();
+        int randomNode = random.nextInt(numberOfNodes());
+
+        sendUnicast(randomNode, "test");
+    }
+
+    protected int sendProb (){
+        //Zufälligen Node bestimmen
+        int n = numberOfNodes();
+        Random random = new Random();
+
+        double prob1 = initialProb * 0.2;
+        int prob2 = random.nextInt(2);
+
+        initialProb = prob1;
+        return prob2;
+    }
+
+    protected void sendCount(){
+        int nodeID = myId - 1;
+        sendCount[nodeID] = sendCount[nodeID] + 1;
+    }
+
+    protected void receiveCount(){
+        int nodeID = myId - 1;
+        receiveCount[nodeID] = receiveCount[nodeID] + 1;
+    }
+
+    protected void nkvSendCount(int receiverID){
+        receiverID = receiverID - 1;
+        nkvCount[receiverID] = nkvCount[receiverID] + 1;
+    }
+
+    protected void nkvReceiveCount(){
+        int nodeID = myId - 1;
+        nkvCount[nodeID] = nkvCount[nodeID] - 1;
+    }
 
     @Override
     public void stop () {

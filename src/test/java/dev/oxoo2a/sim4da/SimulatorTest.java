@@ -7,8 +7,8 @@ import java.beans.Transient;
 import org.junit.jupiter.api.Test;
 
 public class SimulatorTest {
-    private final int n_nodes = 3;
-    private final int duration = 2;
+    private final int n_nodes = 8;
+    private final int duration = 5;
 
     @Test
     public void simpleSimulation() {
