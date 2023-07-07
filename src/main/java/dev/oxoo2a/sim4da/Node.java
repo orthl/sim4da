@@ -42,12 +42,12 @@ public abstract class Node implements Simulator2Node {
     }
 
     protected void sendUnicast ( int receiver_id, String m ) {
-        System.out.println("Drinnen");
-        if (state==true){
+        System.out.println("Drinnen"); // Test
+        if (state==true){   // Wenn Knoten Aktiv
             int prob2 = sendProb();
-            if (initialProb > 0.01 && prob2 == 0){
-                sendCount();
-                nkvSendCount(receiver_id);
+            if (initialProb > 0.01 && prob2 == 0){ // Sendewahrscheinlihckeit bestimmen
+                sendCount();    // aufruf der DZV Methode
+                nkvSendCount(receiver_id);  // aufruf der NKV Methode
                 state = false;
                 simulator.sendUnicast(myId,receiver_id,m);
             }
@@ -55,17 +55,18 @@ public abstract class Node implements Simulator2Node {
     }
 
     protected void sendUnicast ( int receiver_id, Message m ) {
-        if (state==true){
+        if (state==true){   // Wenn Knoten Aktiv
             int prob2 = sendProb();
-            if (initialProb > 0.01 && prob2 == 0){
-                sendCount();
-                nkvSendCount(receiver_id);
+            if (initialProb > 0.01 && prob2 == 0){  // Sendewahrscheinlihckeit bestimmen
+                sendCount();     // aufruf der DZV Methode
+                nkvSendCount(receiver_id);  // aufruf der NKV Methode
                 state = false;
                 simulator.sendUnicast(myId,receiver_id,m);
             }
         }
     }
 
+    //Deaktiviert
     protected void sendBroadcast ( String m ) {
         //sendCount();
         //nkvSendCount(0);
@@ -73,6 +74,7 @@ public abstract class Node implements Simulator2Node {
         //simulator.sendBroadcast(myId,m);
     }
 
+    //Deaktiviert
     protected void sendBroadcast ( Message m ) {
         //sendCount();
         //nkvSendCount(0);
@@ -81,10 +83,10 @@ public abstract class Node implements Simulator2Node {
     }
 
     protected Network.Message receive () {
-        state = true;
-        receiveCount();
-        nkvReceiveCount();
-        newMessage();
+        state = true;   // Status des Knoten auf aktiv setzen
+        receiveCount(); // aufruf der DZV Methode
+        nkvReceiveCount(); //Aufruf der NKV Methode
+        newMessage();   // Senden einer neuen Nachricht über andere Methode
         return simulator.receive(myId);
     }
 
@@ -94,6 +96,7 @@ public abstract class Node implements Simulator2Node {
     // Module implements basic node functionality
     protected abstract void main ();
 
+    // Senden einer neuen Nachricht an einen zufälligen Knoten
     protected void newMessage(){
         Random random = new Random();
         int randomNode = random.nextInt(numberOfNodes());
@@ -101,6 +104,7 @@ public abstract class Node implements Simulator2Node {
         sendUnicast(randomNode, "test");
     }
 
+    //Erstellen der Sendungswahrscheinlichkeit
     protected int sendProb (){
         //Zufälligen Node bestimmen
         int n = numberOfNodes();
@@ -113,21 +117,25 @@ public abstract class Node implements Simulator2Node {
         return prob2;
     }
 
+    //Erhöht den Sendungszähler, wenn eine Nachricht gesendet wird um eins
     protected void sendCount(){
         int nodeID = myId - 1;
         sendCount[nodeID] = sendCount[nodeID] + 1;
     }
 
+    //Erhöht den Empfangszähler, wenn eine Nachricht erhalten wird um eins
     protected void receiveCount(){
         int nodeID = myId - 1;
         receiveCount[nodeID] = receiveCount[nodeID] + 1;
     }
 
+    //Erhöht den Vektor an der passenden Stelle um eins wenn eine Nachricht gesendet wird
     protected void nkvSendCount(int receiverID){
         receiverID = receiverID - 1;
         nkvCount[receiverID] = nkvCount[receiverID] + 1;
     }
 
+    //Verringert den Vektor an der passenden Stelle um eins wenn eine Nachricht empfangen wird
     protected void nkvReceiveCount(){
         int nodeID = myId - 1;
         nkvCount[nodeID] = nkvCount[nodeID] - 1;

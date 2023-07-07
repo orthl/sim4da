@@ -9,19 +9,22 @@ public class NKV {
     public void check(){
         boolean allZero = false;
 
+        // Prüft ob alle Stellen im Vector = 0 sind
         while (!allZero) {
 
             allZero = true;
 
             count();
 
-            for (int number : nullVector) { // Durchlaufe jedes Element im Array.
-                if (number != 0) { // Wenn das Element nicht Null ist,
-                    allZero = false; // setze allZero auf false.
-                    break; // und beende die Schleife.
+            for (int number : nullVector) {
+                if (number != 0) {
+                    allZero = false;
+                    break;
                 }
             }
 
+
+            // Gibt den Status der Terminierung aus
             if (!allZero) {
                 System.out.println("NKV keine Terminierung");
             } else {
@@ -30,6 +33,7 @@ public class NKV {
         }
     }
 
+    //Addition der Vektoren zum Nullvektor
     public void count(){
         for(int i=0;i<=nodes - 1;i++){
             nullVector[i] = nullVector[i] + Node.nkvCount[i];
